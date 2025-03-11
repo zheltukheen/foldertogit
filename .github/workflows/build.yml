@@ -67,6 +67,7 @@ jobs:
     - name: Install Fyne
       run: |
         go install fyne.io/fyne/v2/cmd/fyne@latest
+        which fyne
         
     - name: Download dependencies
       run: |
@@ -84,6 +85,7 @@ jobs:
             convert -size 512x512 xc:#4A90E2 Icon.png
           }
         fi
+        ls -la Icon.png
         
     - name: Build macOS App
       env:
@@ -91,8 +93,18 @@ jobs:
         CGO_ENABLED: 1
       run: |
         cd cmd/gui
-        fyne package -os darwin -icon ../../Icon.png -release
-        mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
+        echo "Current directory: $(pwd)"
+        echo "Icon path: $(realpath ../../Icon.png)"
+        ls -la ../../Icon.png
+        go build -o FolderToGit
+        ~/go/bin/fyne package -os darwin -icon ../../Icon.png -release
+        ls -la
+        if [ -f "FolderToGit.app" ]; then
+          mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
+        else
+          echo "FolderToGit.app not found"
+          exit 1
+        fi
         
     - name: Create PKG Installer
       run: |
