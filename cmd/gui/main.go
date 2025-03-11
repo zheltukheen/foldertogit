@@ -29,7 +29,7 @@ type GUI struct {
 	dryRunCheck   *widget.Check
 	verboseCheck  *widget.Check
 	appendCheck   *widget.Check
-	logText       *widget.TextGrid
+	logText       *widget.Entry
 	convertButton *widget.Button
 }
 
@@ -118,8 +118,12 @@ func (g *GUI) setupUI() {
 	g.appendCheck = widget.NewCheck("Добавить к существующему", nil)
 
 	// Лог
-	g.logText = widget.NewTextGrid()
+	g.logText = widget.NewEntry()
+	g.logText.MultiLine = true
 	g.logText.SetText("Добро пожаловать в Folder to Git Converter!\nЗаполните необходимые поля и нажмите 'Начать конвертацию'")
+	g.logText.Wrapping = fyne.TextWrapWord
+	g.logText.TextStyle = fyne.TextStyle{Monospace: true}
+	g.logText.Disable() // Отключаем редактирование, но сохраняем возможность выделения текста
 
 	// Кнопка конвертации с нативным стилем
 	g.convertButton = widget.NewButtonWithIcon("Начать конвертацию", theme.MediaPlayIcon(), g.startConversion)
@@ -320,7 +324,7 @@ func (g *GUI) startConversion() {
 }
 
 func (g *GUI) log(msg string) {
-	g.logText.SetText(g.logText.Text() + "\n" + msg)
+	g.logText.SetText(g.logText.Text + "\n" + msg)
 }
 
 func (g *GUI) logError(msg string, err error) {

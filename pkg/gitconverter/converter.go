@@ -271,10 +271,23 @@ func clearDirectory(dir string) error {
 	}
 
 	for _, entry := range entries {
-		if entry.Name() == ".git" {
+		// Игнорируем .git и .Trash
+		if entry.Name() == ".git" || entry.Name() == ".Trash" || entry.Name() == ".Trashes" {
 			continue
 		}
+
 		path := filepath.Join(dir, entry.Name())
+
+		// Проверяем, не является ли файл символической ссылкой
+		fileInfo, err := os.Lstat(path)
+		if err != nil {
+			return fmt.Errorf("не удалось получить информацию о файле %s: %v", path, err)
+		}
+
+		// Пропускаем символические ссылки
+		if fileInfo.Mode()&os.ModeSymlink != 0 {
+			continue
+		}
 
 		// Используем более безопасный подход к удалению файлов
 		if entry.IsDir() {
