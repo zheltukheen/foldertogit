@@ -4,10 +4,8 @@
 *.pkg
 *.zip
 FolderToGit
-gui
 gui-amd64
 gui-arm64
-icon
 
 # Python
 __pycache__/
