@@ -263,16 +263,55 @@ func MigrateToGit(config Config, folders []FolderInfo) error {
 	return nil
 }
 
-// clearDirectory удаляет все файлы и папки в указанной директории, кроме .git
+// clearDirectory удаляет все файлы и папки в указанной директории, кроме .git и системных директорий
 func clearDirectory(dir string) error {
+	// Список системных директорий и файлов, которые нужно игнорировать
+	systemDirs := map[string]bool{
+		".git":         true,
+		".Trash":       true,
+		".Trashes":     true,
+		".config":      true,
+		".cache":       true,
+		".local":       true,
+		"Library":      true,
+		"Applications": true,
+		"System":       true,
+		"Users":        true,
+		"bin":          true,
+		"etc":          true,
+		"usr":          true,
+		"var":          true,
+		"tmp":          true,
+		"opt":          true,
+	}
+
+	// Проверяем, не является ли директория системной
+	baseName := filepath.Base(dir)
+	if systemDirs[baseName] {
+		return nil // Пропускаем системные директории
+	}
+
+	// Проверяем, не находится ли директория в домашней директории пользователя
+	homeDir, err := os.UserHomeDir()
+	if err == nil {
+		// Если директория находится в домашней директории и начинается с точки (скрытая),
+		// то пропускаем её
+		if strings.HasPrefix(dir, homeDir) {
+			relPath, err := filepath.Rel(homeDir, dir)
+			if err == nil && strings.HasPrefix(relPath, ".") && !strings.Contains(relPath, "..") {
+				return nil
+			}
+		}
+	}
+
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return err
 	}
 
 	for _, entry := range entries {
-		// Игнорируем .git и .Trash
-		if entry.Name() == ".git" || entry.Name() == ".Trash" || entry.Name() == ".Trashes" {
+		// Игнорируем системные директории и файлы
+		if systemDirs[entry.Name()] {
 			continue
 		}
 
@@ -293,16 +332,22 @@ func clearDirectory(dir string) error {
 		if entry.IsDir() {
 			// Для директорий сначала рекурсивно удаляем содержимое
 			if err := clearDirectory(path); err != nil {
-				return fmt.Errorf("не удалось очистить поддиректорию %s: %v", path, err)
+				// Если не удалось очистить поддиректорию, просто логируем ошибку и продолжаем
+				log.Printf("Предупреждение: %v", err)
+				continue
 			}
 			// Затем удаляем саму директорию
 			if err := os.Remove(path); err != nil {
-				return fmt.Errorf("не удалось удалить директорию %s: %v", path, err)
+				// Если не удалось удалить директорию, просто логируем ошибку и продолжаем
+				log.Printf("Предупреждение: не удалось удалить директорию %s: %v", path, err)
+				continue
 			}
 		} else {
 			// Для файлов просто удаляем
 			if err := os.Remove(path); err != nil {
-				return fmt.Errorf("не удалось удалить файл %s: %v", path, err)
+				// Если не удалось удалить файл, просто логируем ошибку и продолжаем
+				log.Printf("Предупреждение: не удалось удалить файл %s: %v", path, err)
+				continue
 			}
 		}
 	}
