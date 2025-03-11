@@ -23,9 +23,14 @@ jobs:
       run: |
         go install fyne.io/fyne/v2/cmd/fyne@latest
         
-    - name: Build Windows
+    - name: Download dependencies
+      working-directory: ${{ github.workspace }}/cmd/gui
       run: |
-        cd cmd/gui
+        go mod download
+        
+    - name: Build Windows
+      working-directory: ${{ github.workspace }}/cmd/gui
+      run: |
         go build -ldflags="-H windowsgui" -o FolderToGit.exe
         
     - name: Upload Windows artifact
@@ -51,19 +56,30 @@ jobs:
       run: |
         go install fyne.io/fyne/v2/cmd/fyne@latest
         
+    - name: List directories
+      run: |
+        pwd
+        ls -la
+        
+    - name: Download dependencies
+      working-directory: ${{ github.workspace }}/cmd/gui
+      run: |
+        go mod download
+        
     - name: Build macOS App
+      working-directory: ${{ github.workspace }}/cmd/gui
       env:
         GOARCH: ${{ matrix.arch }}
+        CGO_ENABLED: 1
       run: |
-        cd cmd/gui
-        go mod download
-        fyne package -os darwin -icon ../../Icon.png
+        fyne package -os darwin -icon ../../Icon.png -release
         mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
         
     - name: Create PKG Installer
+      working-directory: ${{ github.workspace }}/cmd/gui
       run: |
-        cd cmd/gui
-        pkgbuild --root FolderToGit-${{ matrix.arch }}.app --install-location /Applications --identifier com.foldertogit.app --version 1.0.0 FolderToGit-${{ matrix.arch }}.pkg
+        mkdir -p FolderToGit-${{ matrix.arch }}.app/Contents/MacOS
+        pkgbuild --root FolderToGit-${{ matrix.arch }}.app --install-location /Applications --identifier com.foldertogit.app --version 1.0.1 FolderToGit-${{ matrix.arch }}.pkg
         
     - name: Upload macOS App artifact
       uses: actions/upload-artifact@v4
@@ -81,6 +97,8 @@ jobs:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
