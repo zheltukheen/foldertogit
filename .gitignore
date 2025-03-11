@@ -1,9 +1,21 @@
-# Python files
+# Бинарные файлы
+*.exe
+*.app
+*.pkg
+*.zip
+FolderToGit
+gui
+gui-amd64
+gui-arm64
+icon
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -20,20 +32,26 @@ wheels/
 .installed.cfg
 *.egg
 
-# Logs
+# Логи
 *.log
-logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # IDE files
 .idea/
 .vscode/
 *.swp
 *.swo
-.DS_Store
 
 # Virtual environments
 venv/
-env/
 ENV/
 
 # Test directories
