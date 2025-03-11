@@ -36,6 +36,9 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [arm64, amd64]
     steps:
     - uses: actions/checkout@v4
     
@@ -49,27 +52,30 @@ jobs:
         go install fyne.io/fyne/v2/cmd/fyne@latest
         
     - name: Build macOS App
+      env:
+        GOARCH: ${{ matrix.arch }}
       run: |
         cd cmd/gui
         go mod download
         fyne package -os darwin -icon ../../Icon.png
+        mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
         
     - name: Create PKG Installer
       run: |
         cd cmd/gui
-        pkgbuild --root FolderToGit.app --install-location /Applications --identifier com.foldertogit.app --version 1.0.0 FolderToGit.pkg
+        pkgbuild --root FolderToGit-${{ matrix.arch }}.app --install-location /Applications --identifier com.foldertogit.app --version 1.0.0 FolderToGit-${{ matrix.arch }}.pkg
         
     - name: Upload macOS App artifact
       uses: actions/upload-artifact@v4
       with:
-        name: FolderToGit-macOS-App
-        path: cmd/gui/FolderToGit.app
+        name: FolderToGit-macOS-${{ matrix.arch }}-App
+        path: cmd/gui/FolderToGit-${{ matrix.arch }}.app
         
     - name: Upload macOS PKG artifact
       uses: actions/upload-artifact@v4
       with:
-        name: FolderToGit-macOS-PKG
-        path: cmd/gui/FolderToGit.pkg
+        name: FolderToGit-macOS-${{ matrix.arch }}-PKG
+        path: cmd/gui/FolderToGit-${{ matrix.arch }}.pkg
 
   create-release:
     needs: [build-windows, build-macos]
@@ -84,8 +90,10 @@ jobs:
         with:
           files: |
             FolderToGit-Windows/FolderToGit.exe
-            FolderToGit-macOS-PKG/FolderToGit.pkg
-            FolderToGit-macOS-App/FolderToGit.app
+            FolderToGit-macOS-arm64-PKG/FolderToGit-arm64.pkg
+            FolderToGit-macOS-amd64-PKG/FolderToGit-amd64.pkg
+            FolderToGit-macOS-arm64-App/FolderToGit-arm64.app
+            FolderToGit-macOS-amd64-App/FolderToGit-amd64.app
           draft: false
           prerelease: false
           generate_release_notes: true 
