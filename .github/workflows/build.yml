@@ -72,6 +72,10 @@ jobs:
       run: |
         go mod download
         
+    - name: Install ImageMagick
+      run: |
+        brew install imagemagick
+        
     - name: Create default icon if missing
       run: |
         if [ ! -f Icon.png ]; then
