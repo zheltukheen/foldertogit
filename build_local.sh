@@ -19,6 +19,7 @@ echo "Архитектура: $GOARCH"
 # Устанавливаем переменные окружения
 export GOARCH=$GOARCH
 export CGO_ENABLED=1
+export PATH=$PATH:$HOME/go/bin
 
 # Проверяем наличие зависимостей
 if ! command -v go &> /dev/null; then
@@ -42,7 +43,19 @@ go build -o FolderToGit
 
 # Создаем .app пакет
 echo "Создаю .app пакет..."
-fyne package -os darwin -icon ../../Icon.png -name FolderToGit -executable FolderToGit -release
+FYNE_PATH=$HOME/go/bin/fyne
+if [ ! -f "$FYNE_PATH" ]; then
+    echo "Не могу найти fyne по пути $FYNE_PATH. Ищу в других местах..."
+    FYNE_PATH=$(find $HOME/go -name fyne -type f | head -1)
+    if [ -z "$FYNE_PATH" ]; then
+        echo "Не могу найти исполняемый файл fyne. Пожалуйста, установите его вручную:"
+        echo "go install fyne.io/fyne/v2/cmd/fyne@latest"
+        exit 1
+    fi
+    echo "Найден fyne: $FYNE_PATH"
+fi
+
+$FYNE_PATH package -os darwin -icon ../../Icon.png -name FolderToGit -executable FolderToGit -release
 
 # Проверяем, что исполняемый файл существует и имеет правильное имя
 if [ ! -f "FolderToGit.app/Contents/MacOS/FolderToGit" ]; then
