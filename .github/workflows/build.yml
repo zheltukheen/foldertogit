@@ -97,9 +97,14 @@ jobs:
         echo "Icon path: $(realpath ../../Icon.png)"
         ls -la ../../Icon.png
         go build -o FolderToGit
-        ~/go/bin/fyne package -os darwin -icon ../../Icon.png -name FolderToGit -release
+        ~/go/bin/fyne package -os darwin -icon ../../Icon.png -name FolderToGit -executable FolderToGit -release
         ls -la
         if [ -d "FolderToGit.app" ]; then
+          if [ ! -f "FolderToGit.app/Contents/MacOS/FolderToGit" ]; then
+            echo "Error: Executable not found or has wrong name"
+            ls -la FolderToGit.app/Contents/MacOS/
+            exit 1
+          fi
           mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
         else
           echo "FolderToGit.app directory not found"
@@ -110,8 +115,9 @@ jobs:
     - name: Create PKG Installer
       run: |
         cd cmd/gui
-        mkdir -p FolderToGit-${{ matrix.arch }}.app/Contents/MacOS
-        pkgbuild --root FolderToGit-${{ matrix.arch }}.app --install-location /Applications --identifier com.foldertogit.app --version 1.0.1 FolderToGit-${{ matrix.arch }}.pkg
+        VERSION=$(grep -A1 CFBundleVersion FolderToGit-${{ matrix.arch }}.app/Contents/Info.plist | tail -1 | sed 's/.*<string>\(.*\)<\/string>.*/\1/')
+        echo "Using version: $VERSION"
+        pkgbuild --root FolderToGit-${{ matrix.arch }}.app --install-location /Applications --identifier com.foldertogit.app --version $VERSION FolderToGit-${{ matrix.arch }}.pkg
         
     - name: Upload macOS App artifact
       uses: actions/upload-artifact@v4

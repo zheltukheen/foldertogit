@@ -9,7 +9,9 @@
     <key>CFBundleIdentifier</key>
     <string>com.foldertogit.app</string>
     <key>CFBundleVersion</key>
-    <string>1.0.0</string>
+    <string>1.0.4</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.4</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
@@ -20,5 +22,11 @@
     <string>Icon.icns</string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.13</string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2024 FolderToGit. All rights reserved.</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.developer-tools</string>
 </dict>
 </plist> 
