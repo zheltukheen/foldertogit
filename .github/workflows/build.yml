@@ -15,9 +15,10 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Debug directory structure
+      shell: pwsh
       run: |
-        pwd
-        ls -la
+        Get-Location
+        Get-ChildItem -Force
         
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -56,6 +57,7 @@ jobs:
         pwd
         ls -la
         find . -type f -name "main.go"
+        find . -type f -name "Icon.png"
         
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -69,6 +71,15 @@ jobs:
     - name: Download dependencies
       run: |
         go mod download
+        
+    - name: Create default icon if missing
+      run: |
+        if [ ! -f Icon.png ]; then
+          convert -size 512x512 xc:none -fill "#4A90E2" -draw "circle 256,256 256,50" Icon.png || {
+            echo "Failed to create icon with ImageMagick, creating a simple one"
+            convert -size 512x512 xc:#4A90E2 Icon.png
+          }
+        fi
         
     - name: Build macOS App
       env:
