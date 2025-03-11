@@ -239,8 +239,8 @@ func MigrateToGit(config Config, folders []FolderInfo) error {
 				time.Unix(folder.CreationTime, 0).Format("2006-01-02 15:04:05"))
 		}
 
-		// Добавляем все файлы в индекс
-		if _, err := worktree.Add("."); err != nil {
+		// Добавляем все файлы в индекс, исключая системные директории
+		if err := addFilesToIndex(worktree, config.TargetDir); err != nil {
 			return fmt.Errorf("ошибка добавления файлов в индекс: %v", err)
 		}
 
@@ -533,4 +533,85 @@ func getFolderCreationTime(folderPath string) int64 {
 	})
 
 	return fileTimes[len(fileTimes)/2]
+}
+
+// addFilesToIndex добавляет файлы в индекс Git, исключая системные директории
+func addFilesToIndex(worktree *git.Worktree, rootPath string) error {
+	// Список системных директорий и файлов, которые нужно игнорировать
+	systemDirs := map[string]bool{
+		".git":         true,
+		".Trash":       true,
+		".Trashes":     true,
+		".config":      true,
+		".cache":       true,
+		".local":       true,
+		"Library":      true,
+		"Applications": true,
+		"System":       true,
+		"Users":        true,
+		"bin":          true,
+		"etc":          true,
+		"usr":          true,
+		"var":          true,
+		"tmp":          true,
+		"opt":          true,
+	}
+
+	// Рекурсивная функция для обхода директорий
+	var addFiles func(path string) error
+	addFiles = func(path string) error {
+		// Получаем относительный путь от корня репозитория
+		relPath, err := filepath.Rel(rootPath, path)
+		if err != nil {
+			return err
+		}
+
+		// Если это корень, используем "."
+		if relPath == "" {
+			relPath = "."
+		}
+
+		// Проверяем, не является ли директория системной
+		baseName := filepath.Base(path)
+		if systemDirs[baseName] || strings.HasPrefix(baseName, ".") {
+			return nil // Пропускаем системные и скрытые директории
+		}
+
+		// Если это файл, добавляем его в индекс
+		fileInfo, err := os.Stat(path)
+		if err != nil {
+			// Игнорируем ошибки доступа
+			return nil
+		}
+
+		if !fileInfo.IsDir() {
+			_, err := worktree.Add(relPath)
+			if err != nil {
+				// Игнорируем ошибки добавления
+				log.Printf("Предупреждение: не удалось добавить файл %s: %v", relPath, err)
+			}
+			return nil
+		}
+
+		// Если это директория, обходим её содержимое
+		entries, err := os.ReadDir(path)
+		if err != nil {
+			// Игнорируем ошибки доступа
+			return nil
+		}
+
+		for _, entry := range entries {
+			entryPath := filepath.Join(path, entry.Name())
+			// Рекурсивно обрабатываем поддиректории и файлы
+			if err := addFiles(entryPath); err != nil {
+				// Игнорируем ошибки и продолжаем
+				log.Printf("Предупреждение: %v", err)
+			}
+		}
+
+		return nil
+	}
+
+	// Начинаем обход с корня репозитория
+	return addFiles(rootPath)
 }
