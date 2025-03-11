@@ -72,6 +72,12 @@ if [ ! -f "FolderToGit.app/Contents/MacOS/FolderToGit" ]; then
     exit 1
 fi
 
+# Удаляем лишний исполняемый файл gui, если он существует
+if [ -f "FolderToGit.app/Contents/MacOS/gui" ]; then
+    echo "Удаляем лишний исполняемый файл gui"
+    rm -f "FolderToGit.app/Contents/MacOS/gui"
+fi
+
 # Копируем приложение в /Applications для тестирования
 echo "Копирую приложение в /Applications для тестирования..."
 sudo cp -R FolderToGit.app /Applications/

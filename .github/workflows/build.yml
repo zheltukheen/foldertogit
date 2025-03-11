@@ -106,6 +106,10 @@ jobs:
             ls -la FolderToGit.app/Contents/MacOS/
             exit 1
           fi
+          if [ -f "FolderToGit.app/Contents/MacOS/gui" ]; then
+            echo "Removing extra executable file gui"
+            rm -f "FolderToGit.app/Contents/MacOS/gui"
+          fi
           mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
         else
           echo "FolderToGit.app directory not found"
