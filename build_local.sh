@@ -55,7 +55,15 @@ if [ ! -f "$FYNE_PATH" ]; then
     echo "Найден fyne: $FYNE_PATH"
 fi
 
-$FYNE_PATH package -os darwin -icon ../../Icon.png -name FolderToGit -executable FolderToGit -release
+# Проверяем наличие иконки
+ICON_PATH="../../cmd/icon/Icon.png"
+if [ ! -f "$ICON_PATH" ]; then
+    echo "Иконка не найдена по пути $ICON_PATH"
+    exit 1
+fi
+echo "Используем иконку: $ICON_PATH"
+
+$FYNE_PATH package -os darwin -icon $ICON_PATH -name FolderToGit -executable FolderToGit -release
 
 # Проверяем, что исполняемый файл существует и имеет правильное имя
 if [ ! -f "FolderToGit.app/Contents/MacOS/FolderToGit" ]; then

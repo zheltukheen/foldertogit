@@ -79,13 +79,14 @@ jobs:
         
     - name: Create default icon if missing
       run: |
-        if [ ! -f Icon.png ]; then
-          convert -size 512x512 xc:none -fill "#4A90E2" -draw "circle 256,256 256,50" Icon.png || {
+        if [ ! -f cmd/icon/Icon.png ]; then
+          echo "Icon not found, creating a default one"
+          convert -size 512x512 xc:none -fill "#4A90E2" -draw "circle 256,256 256,50" cmd/icon/Icon.png || {
             echo "Failed to create icon with ImageMagick, creating a simple one"
-            convert -size 512x512 xc:#4A90E2 Icon.png
+            convert -size 512x512 xc:#4A90E2 cmd/icon/Icon.png
           }
         fi
-        ls -la Icon.png
+        ls -la cmd/icon/Icon.png
         
     - name: Build macOS App
       env:
@@ -94,10 +95,10 @@ jobs:
       run: |
         cd cmd/gui
         echo "Current directory: $(pwd)"
-        echo "Icon path: $(realpath ../../Icon.png)"
-        ls -la ../../Icon.png
+        echo "Icon path: $(realpath ../../cmd/icon/Icon.png)"
+        ls -la ../../cmd/icon/Icon.png
         go build -o FolderToGit
-        ~/go/bin/fyne package -os darwin -icon ../../Icon.png -name FolderToGit -executable FolderToGit -release
+        ~/go/bin/fyne package -os darwin -icon ../../cmd/icon/Icon.png -name FolderToGit -executable FolderToGit -release
         ls -la
         if [ -d "FolderToGit.app" ]; then
           if [ ! -f "FolderToGit.app/Contents/MacOS/FolderToGit" ]; then
