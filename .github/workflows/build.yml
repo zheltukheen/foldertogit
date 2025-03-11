@@ -23,13 +23,8 @@ jobs:
       run: |
         go install fyne.io/fyne/v2/cmd/fyne@latest
         
-    - name: Setup directories
-      run: |
-        mkdir -p cmd/gui
-        
     - name: Download dependencies
       run: |
-        cd cmd/gui
         go mod download
         
     - name: Build Windows
@@ -65,13 +60,8 @@ jobs:
         pwd
         ls -la
         
-    - name: Setup directories
-      run: |
-        mkdir -p cmd/gui
-        
     - name: Download dependencies
       run: |
-        cd cmd/gui
         go mod download
         
     - name: Build macOS App
