@@ -263,7 +263,7 @@ func MigrateToGit(config Config, folders []FolderInfo) error {
 	return nil
 }
 
-// clearDirectory очищает директорию от всех файлов и папок, кроме .git
+// clearDirectory удаляет все файлы и папки в указанной директории, кроме .git
 func clearDirectory(dir string) error {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -275,8 +275,22 @@ func clearDirectory(dir string) error {
 			continue
 		}
 		path := filepath.Join(dir, entry.Name())
-		if err := os.RemoveAll(path); err != nil {
-			return err
+
+		// Используем более безопасный подход к удалению файлов
+		if entry.IsDir() {
+			// Для директорий сначала рекурсивно удаляем содержимое
+			if err := clearDirectory(path); err != nil {
+				return fmt.Errorf("не удалось очистить поддиректорию %s: %v", path, err)
+			}
+			// Затем удаляем саму директорию
+			if err := os.Remove(path); err != nil {
+				return fmt.Errorf("не удалось удалить директорию %s: %v", path, err)
+			}
+		} else {
+			// Для файлов просто удаляем
+			if err := os.Remove(path); err != nil {
+				return fmt.Errorf("не удалось удалить файл %s: %v", path, err)
+			}
 		}
 	}
 	return nil
