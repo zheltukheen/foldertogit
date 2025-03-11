@@ -97,12 +97,13 @@ jobs:
         echo "Icon path: $(realpath ../../Icon.png)"
         ls -la ../../Icon.png
         go build -o FolderToGit
-        ~/go/bin/fyne package -os darwin -icon ../../Icon.png -executable FolderToGit -release
+        ~/go/bin/fyne package -os darwin -icon ../../Icon.png -name FolderToGit -release
         ls -la
-        if [ -f "gui.app" ]; then
-          mv gui.app FolderToGit-${{ matrix.arch }}.app
+        if [ -f "FolderToGit.app" ]; then
+          mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
         else
-          echo "gui.app not found"
+          echo "FolderToGit.app not found"
+          ls -la
           exit 1
         fi
         
