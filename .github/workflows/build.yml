@@ -99,10 +99,10 @@ jobs:
         go build -o FolderToGit
         ~/go/bin/fyne package -os darwin -icon ../../Icon.png -name FolderToGit -release
         ls -la
-        if [ -f "FolderToGit.app" ]; then
+        if [ -d "FolderToGit.app" ]; then
           mv FolderToGit.app FolderToGit-${{ matrix.arch }}.app
         else
-          echo "FolderToGit.app not found"
+          echo "FolderToGit.app directory not found"
           ls -la
           exit 1
         fi
