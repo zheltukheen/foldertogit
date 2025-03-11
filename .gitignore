@@ -1,0 +1,47 @@
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs
+*.log
+logs/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Test directories
+folder_to_git_test/
+output_repo/
+test_output/
+
+# Temporary files
+*.tmp
+.temp/
+temp/ 

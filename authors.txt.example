@@ -1,0 +1,14 @@
+# Пример файла сопоставления версий и авторов
+# Формат: версия:имя автора:email автора
+
+# Комментарии начинаются с символа #
+
+# Версии для проекта example
+1.0:John Doe:john.doe@example.com
+1.5:John Doe:john.doe@example.com
+2.0:Jane Smith:jane.smith@example.com
+2.5:Jane Smith:jane.smith@example.com
+3.0:Alex Johnson:alex.johnson@example.com
+
+# Вы можете указывать разных авторов для разных версий
+# Это будет отражено в истории коммитов Git 

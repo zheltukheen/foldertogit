@@ -1,0 +1,5 @@
+Website = "https://example.com"
+Name = "FolderToGit"
+ID = "com.foldertogit.app"
+Version = "1.0.0"
+Build = 1 
